@@ -1,7 +1,1 @@
-# 아 존나 하기싫어 근데 해야돼.
-
-# 왜 반영이 안되지? 제발 반영되라
-
-# ddd
-
-# dsadasdsa
+# git pull 후 npm install vite --save-dev 설치 해야됨
