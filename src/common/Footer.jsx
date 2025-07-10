@@ -8,7 +8,7 @@ function Footer() {
         <div className="footer-section">
           <div className="footer-logo">
             <span className="footer-logo-icon">💻</span>
-            <span className="footer-logo-text">IT마켓</span>
+            <span className="footer-logo-text">서버팜</span>
           </div>
           <p className="footer-description">
             중고 IT 장비 전문 가격비교 플랫폼<br/>
@@ -54,7 +54,7 @@ function Footer() {
       <div className="footer-bottom">
         <div className="footer-container">
           <div className="footer-copyright">
-            <p>&copy; 2025 IT마켓. All rights reserved.</p>
+            <p>&copy; 2025 서버팜. All rights reserved.</p>
           </div>
           <div className="footer-social">
             <a href="#" className="social-link">📧</a>

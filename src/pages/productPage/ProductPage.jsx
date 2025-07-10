@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import './css/ProductPage.css'
+import axios from "axios";
 
 function ProductPage() {
   const [searchParams] = useSearchParams()
@@ -11,6 +12,14 @@ function ProductPage() {
   const [brands, setBrands] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchInput, setSearchInput] = useState('')
+
+  // 필터 변경 핸들러 함수 추가
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }))
+  }
 
   // 필터 상태
   const [filters, setFilters] = useState({
@@ -24,6 +33,8 @@ function ProductPage() {
     cpu: 'all'
   })
 
+
+
   // URL에서 검색어 가져오기
   const searchTerm = searchParams.get('search') || ''
 
@@ -34,161 +45,31 @@ function ProductPage() {
     }
   }, [searchTerm])
 
-  const performSearch = (term) => {
-    console.log('검색 실행:', term)
-    setIsLoading(true)
-    
-    // 가짜 검색 결과 생성 (실제로는 API 호출)
-    setTimeout(() => {
-      const fakeResults = [
-        {
-          id: 1,
-          title: 'Dell PowerEdge R730 서버',
-          model: 'R730',
-          category: '서버',
-          brand: 'Dell',
-          memory: 32,
-          disk_count: 2,
-          has_ssd: true,
-          cpu: 'Intel Xeon E5-2620 v4',
-          spec_description: '32GB DDR4, 1TB SSD',
-          price: 2800000,
-          original_price: 3500000,
-          discount: 20,
-          condition: '중고 A급',
-          seller: '중고나라',
-          location: '서울 강남구',
-          image_url: 'https://via.placeholder.com/300x200?text=Dell+R730',
-          rating: 4.8,
-          review_count: 23
-        },
-        {
-          id: 2,
-          title: 'HP ProLiant DL380 Gen9',
-          model: 'DL380 Gen9',
-          category: '서버',
-          brand: 'HP',
-          memory: 64,
-          disk_count: 4,
-          has_ssd: false,
-          cpu: 'Intel Xeon E5-2690 v3',
-          spec_description: '64GB DDR4, 2TB HDD',
-          price: 3200000,
-          original_price: 4000000,
-          discount: 20,
-          condition: '중고 B급',
-          seller: '당근마켓',
-          location: '경기 성남시',
-          image_url: 'https://via.placeholder.com/300x200?text=HP+DL380',
-          rating: 4.5,
-          review_count: 18
-        },
-        {
-          id: 3,
-          title: 'Cisco 2960-X 48포트 스위치',
-          model: '2960-X',
-          category: '네트워크',
-          brand: 'Cisco',
-          memory: 0,
-          disk_count: 0,
-          has_ssd: false,
-          cpu: 'ARM Cortex-A9',
-          spec_description: '48x 1GB 포트, 4x 10GB SFP+ 업링크',
-          price: 850000,
-          original_price: 1200000,
-          discount: 29,
-          condition: '중고 A급',
-          seller: '서버마트',
-          location: '서울 영등포구',
-          image_url: 'https://via.placeholder.com/300x200?text=Cisco+2960',
-          rating: 4.9,
-          review_count: 31
-        },
-        {
-          id: 4,
-          title: 'Synology DS920+ NAS',
-          model: 'DS920+',
-          category: '스토리지',
-          brand: 'Synology',
-          memory: 4,
-          disk_count: 4,
-          has_ssd: true,
-          cpu: 'Intel Celeron J4125',
-          spec_description: '4베이 NAS, 4GB RAM',
-          price: 520000,
-          original_price: 650000,
-          discount: 20,
-          condition: '새상품',
-          seller: 'IT마켓',
-          location: '서울 송파구',
-          image_url: 'https://via.placeholder.com/300x200?text=Synology+DS920',
-          rating: 4.7,
-          review_count: 42
-        },
-        {
-          id: 5,
-          title: 'Dell EMC PowerVault MD1220',
-          model: 'MD1220',
-          category: '스토리지',
-          brand: 'Dell',
-          memory: 0,
-          disk_count: 24,
-          has_ssd: true,
-          cpu: 'SAS Controller',
-          spec_description: '24베이 SAS 스토리지 어레이',
-          price: 1800000,
-          original_price: 2500000,
-          discount: 28,
-          condition: '중고 A급',
-          seller: '전문업체',
-          location: '경기 안양시',
-          image_url: 'https://via.placeholder.com/300x200?text=Dell+MD1220',
-          rating: 4.6,
-          review_count: 15
-        },
-        {
-          id: 6,
-          title: 'HPE Aruba 2930F 48포트',
-          model: '2930F',
-          category: '네트워크',
-          brand: 'HP',
-          memory: 1,
-          disk_count: 0,
-          has_ssd: false,
-          cpu: 'ARM Cortex-A15',
-          spec_description: '48x 1GbE + 4x SFP+ 포트, L3 스위치',
-          price: 1200000,
-          original_price: 1800000,
-          discount: 33,
-          condition: '중고 B급',
-          seller: '네트워크샵',
-          location: '서울 마포구',
-          image_url: 'https://via.placeholder.com/300x200?text=HPE+2930F',
-          rating: 4.4,
-          review_count: 12
-        }
-      ]
-      
-      // 카테고리와 브랜드 목록 추출
-      const uniqueCategories = [...new Set(fakeResults.map(p => p.category))]
-      const uniqueBrands = [...new Set(fakeResults.map(p => p.brand))]
-      
-      setProducts(fakeResults)
-      setCategories(uniqueCategories)
-      setBrands(uniqueBrands)
-      setIsLoading(false)
 
-      localStorage.setItem('productList', JSON.stringify(fakeResults));
-      setIsLoading(false);
-    }, 1300)
+// ...
+
+const performSearch = async (term) => {
+  console.log('검색 실행:', term)
+  setIsLoading(true)
+
+  try {
+    const res = await axios.get(`http://localhost:8080/api/products`)
+    const data = res.data
+
+    // 카테고리, 브랜드 분리
+    const uniqueCategories = [...new Set(data.map(p => p.category))]
+    const uniqueBrands = [...new Set(data.map(p => p.brand))]
+
+    setProducts(data)
+    setCategories(uniqueCategories)
+    setBrands(uniqueBrands)
+  } catch (error) {
+    console.error('제품 불러오기 실패:', error)
   }
 
-  const handleFilterChange = (filterType, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value
-    }))
-  }
+  setIsLoading(false)
+}
+
 
   const handleSearch = (e) => {
     e.preventDefault()
