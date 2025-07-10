@@ -42,9 +42,6 @@ function ProductDetailPage() {
           <p><strong>할인율:</strong> -{product.discount}%</p>
           <p><strong>판매자:</strong> {product.seller}</p>
           <p><strong>위치:</strong> {product.location}</p>
-          <p className="rating">
-            <strong>평점:</strong> ⭐ {product.rating} ({product.review_count}명)
-          </p>
           <button className="buy-button">구매하러가기</button>
         </div>
       </div>

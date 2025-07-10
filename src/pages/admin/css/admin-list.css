@@ -1,0 +1,68 @@
+.admin-list-page {
+  max-width: 500px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 32px 24px;
+}
+
+.admin-list-page h2 {
+  margin-bottom: 24px;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.category-item:last-child {
+  border-bottom: none;
+}
+
+.category-item b {
+  font-size: 1.1rem;
+  margin-right: 16px;
+}
+
+.category-item img {
+  border-radius: 6px;
+  background: #f4f4f4;
+  margin-left: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+
+.category-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 16px; /* 행 사이 간격을 16px로 설정 */
+  margin-top: 24px;
+}
+
+.category-table th, .category-table td {
+  border: 1px solid #eee;
+  padding: 16px 18px;   /* 셀 내부 여백도 넉넉하게 */
+  text-align: left;
+  background: #fff;
+}
+
+.category-table th {
+  background: #f7f7f7;
+}
+
+.category-table img {
+  display: block;
+  max-width: 60px;
+  max-height: 40px;
+}

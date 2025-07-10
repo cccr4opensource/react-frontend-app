@@ -1,0 +1,96 @@
+.admin-form-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-form-container {
+  background: #fff;
+  padding: 36px 28px;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+  max-width: 420px;
+  width: 100%;
+}
+
+.admin-form-container h3 {
+  text-align: center;
+  margin-bottom: 28px;
+  color: #4285f4;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-form label {
+  font-size: 15px;
+  color: #495057;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-form input[type="text"],
+.admin-form input[type="number"],
+.admin-form input[type="date"],
+.admin-form input[type="url"],
+.admin-form select {
+  padding: 10px 12px;
+  border: 1.5px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 15px;
+}
+
+.admin-form input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 5px;
+}
+
+.admin-form button {
+  padding: 12px;
+  background: linear-gradient(45deg, #4285f4, #1a73e8);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-form button:hover {
+  background: linear-gradient(45deg, #1a73e8, #1557b0);
+}
+
+.admin-form-message {
+  margin-top: 18px;
+  text-align: center;
+  color: #40c057;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.admin-menu-link {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(45deg, #f1f3f9, #e3eafc);
+  color: #4285f4;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.admin-menu-link:hover {
+  background: linear-gradient(45deg, #4285f4, #1a73e8);
+  color: #fff;
+}
