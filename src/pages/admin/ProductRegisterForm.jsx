@@ -1,278 +1,140 @@
 import { useState, useEffect } from 'react'
-import './css/admin-form.css'
+import axios from 'axios'
+import './css/admin-form.css' // 위 CSS를 이 파일에 저장하세요
 
 function ProductRegisterForm() {
   const [form, setForm] = useState({
-    model_id: '',
+    modelId: '',
     title: '',
-    original_price: '',
-    discount_price: '',
+    imageUrl: '',
+    originalPrice: '',
+    discountPrice: '',
     currency: 'KRW',
-    status: '',
+    status: '신품',
     location: '',
-    has_os: false,
-    os_version: '',
-    os_architecture: '',
+    hasOs: false,
+    osVersion: '',
+    osArchitecture: '',
+    description: ''
   })
-  const [imageFile, setImageFile] = useState(null)
   const [models, setModels] = useState([])
   const [message, setMessage] = useState('')
 
-  // 부품(컴포넌트) 매핑 상태
-  const [components, setComponents] = useState([
-    { component_type: '', component_id: '', quantity: 1, additional_specs: '' }
-  ])
-  const [cpuList, setCpuList] = useState([])
-  const [memoryList, setMemoryList] = useState([])
-  const [diskList, setDiskList] = useState([])
-
   useEffect(() => {
-    fetch('/api/models').then(r => r.json()).then(setModels)
-    fetch('/api/cpus').then(r => r.json()).then(setCpuList)
-    fetch('/api/memories').then(r => r.json()).then(setMemoryList)
-    fetch('/api/disks').then(r => r.json()).then(setDiskList)
+    axios.get('/api/models')
+      .then(res => setModels(res.data))
+      .catch(() => setModels([]))
   }, [])
 
-  const handleChange = (e) => {
-    const { name, value, type, checked, files } = e.target
-    if (type === 'file') {
-      setImageFile(files[0])
-    } else {
-      setForm(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value,
-      }))
-    }
+  const handleChange = e => {
+    const { name, value, type, checked } = e.target
+    setForm(f => ({
+      ...f,
+      [name]: type === 'checkbox' ? checked : value
+    }))
   }
 
-  // 부품 매핑 핸들러
-  const handleComponentChange = (idx, e) => {
-    const { name, value } = e.target
-    setComponents(prev =>
-      prev.map((comp, i) =>
-        i === idx ? { ...comp, [name]: value } : comp
-      )
-    )
-  }
-  const addComponent = () =>
-    setComponents([...components, { component_type: '', component_id: '', quantity: 1, additional_specs: '' }])
-  const removeComponent = idx =>
-    setComponents(components.filter((_, i) => i !== idx))
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault()
-    const data = new FormData()
-    Object.entries(form).forEach(([key, value]) => data.append(key, value))
-    if (imageFile) data.append('image', imageFile)
-    data.append('components', JSON.stringify(components))
-
     try {
-      const res = await fetch('/api/products', {
-        method: 'POST',
-        body: data,
+      await axios.post('/api/products', {
+        ...form,
+        modelId: Number(form.modelId),
+        originalPrice: Number(form.originalPrice),
+        discountPrice: form.discountPrice ? Number(form.discountPrice) : null
       })
-      if (res.ok) {
-        setMessage('제품이 등록되었습니다!')
-        setForm({
-          model_id: '', title: '', original_price: '', discount_price: '',
-          currency: 'KRW', status: '', location: '', has_os: false, os_version: '', os_architecture: ''
-        })
-        setImageFile(null)
-        setComponents([{ component_type: '', component_id: '', quantity: 1, additional_specs: '' }])
-      } else {
-        setMessage('등록 실패')
-      }
+      setMessage('상품이 등록되었습니다!')
+      setForm({
+        modelId: '',
+        title: '',
+        imageUrl: '',
+        originalPrice: '',
+        discountPrice: '',
+        currency: 'KRW',
+        status: '신품',
+        location: '',
+        hasOs: false,
+        osVersion: '',
+        osArchitecture: '',
+        description: ''
+      })
     } catch {
-      setMessage('서버 오류')
+      setMessage('등록 실패')
     }
   }
 
   return (
-    <div className="admin-form-page">
-      <div className="admin-form-container">
-        <form className="admin-form" onSubmit={handleSubmit}>
-          <h3>제품 등록</h3>
-          <label>
-            모델
-            <select name="model_id" value={form.model_id} onChange={handleChange} required>
-              <option value="">선택</option>
-              {models.map(m => <option key={m.id} value={m.id}>{m.model_name}</option>)}
-            </select>
-          </label>
-          <label>
-            상품 이미지
-            <input
-              type="file"
-              name="image"
-              accept="image/*"
-              onChange={handleChange}
-              required
-            />
-          </label>
-          <label>
-            상품명
-            <input
-              type="text"
-              name="title"
-              value={form.title}
-              onChange={handleChange}
-              required
-              placeholder="예: Dell PowerEdge R730"
-              autoComplete="off"
-            />
-          </label>
-          <label>
-            원래 가격
-            <input
-              type="number"
-              name="original_price"
-              value={form.original_price}
-              onChange={handleChange}
-              required
-              min="0"
-            />
-          </label>
-          <label>
-            할인 가격
-            <input
-              type="number"
-              name="discount_price"
-              value={form.discount_price}
-              onChange={handleChange}
-              min="0"
-            />
-          </label>
-          <label>
-            통화
-            <select name="currency" value={form.currency} onChange={handleChange}>
-              <option value="KRW">KRW</option>
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-            </select>
-          </label>
-          <label>
-            상태
-            <select name="status" value={form.status} onChange={handleChange} required>
-              <option value="">선택</option>
-              <option value="판매중">판매중</option>
-              <option value="품절">품절</option>
-            </select>
-          </label>
-          <label>
-            위치
-            <input
-              type="text"
-              name="location"
-              value={form.location}
-              onChange={handleChange}
-              required
-              placeholder="예: 서울 강남구"
-              autoComplete="off"
-            />
-          </label>
-          <label>
-            OS 포함 여부
-            <input
-              type="checkbox"
-              name="has_os"
-              checked={form.has_os}
-              onChange={handleChange}
-            />
-          </label>
-          <label>
-            OS 버전
-            <input
-              type="text"
-              name="os_version"
-              value={form.os_version}
-              onChange={handleChange}
-              placeholder="예: Windows Server 2019"
-              autoComplete="off"
-            />
-          </label>
-          <label>
-            OS 아키텍처
-            <input
-              type="text"
-              name="os_architecture"
-              value={form.os_architecture}
-              onChange={handleChange}
-              placeholder="예: x86_64"
-              autoComplete="off"
-            />
-          </label>
-          <hr style={{ margin: '18px 0' }} />
-          <h4>부품(컴포넌트) 구성</h4>
-          {components.map((comp, idx) => (
-            <div key={idx} style={{ marginBottom: 14, borderBottom: '1px solid #eee', paddingBottom: 10 }}>
-              <label>
-                부품 타입
-                <select
-                  name="component_type"
-                  value={comp.component_type}
-                  onChange={e => handleComponentChange(idx, e)}
-                  required
-                >
-                  <option value="">선택</option>
-                  <option value="cpu">CPU</option>
-                  <option value="memory">메모리</option>
-                  <option value="disk">디스크</option>
-                </select>
-              </label>
-              <label>
-                부품 선택
-                <select
-                  name="component_id"
-                  value={comp.component_id}
-                  onChange={e => handleComponentChange(idx, e)}
-                  required
-                >
-                  <option value="">모델 선택</option>
-                  {comp.component_type === 'cpu' && cpuList.map(c => (
-                    <option key={c.id} value={c.id}>{c.model_name}</option>
-                  ))}
-                  {comp.component_type === 'memory' && memoryList.map(m => (
-                    <option key={m.id} value={m.id}>{m.model_name}</option>
-                  ))}
-                  {comp.component_type === 'disk' && diskList.map(d => (
-                    <option key={d.id} value={d.id}>{d.model_name}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                수량
-                <input
-                  type="number"
-                  name="quantity"
-                  value={comp.quantity}
-                  min="1"
-                  onChange={e => handleComponentChange(idx, e)}
-                  required
-                />
-              </label>
-              <label>
-                추가 사양
-                <input
-                  type="text"
-                  name="additional_specs"
-                  value={comp.additional_specs}
-                  onChange={e => handleComponentChange(idx, e)}
-                  placeholder="(선택)"
-                />
-              </label>
-              {components.length > 1 && (
-                <button type="button" onClick={() => removeComponent(idx)} style={{ marginTop: 6 }}>
-                  삭제
-                </button>
-              )}
-            </div>
+    <form onSubmit={handleSubmit} style={{ maxWidth: 600, margin: '40px auto', background: '#fff', borderRadius: 8, boxShadow: '0 2px 10px rgba(0,0,0,0.08)', padding: '32px 24px' }}>
+      <h2 style={{ textAlign: 'center', color: '#1a237e', marginBottom: 24 }}>상품 등록</h2>
+      <div className="form-row">
+        <label>모델 선택<span className="required">*</span></label>
+        <select
+          name="modelId"
+          value={form.modelId}
+          onChange={handleChange}
+          required
+        >
+          <option value="">모델을 선택하세요</option>
+          {models.map(m => (
+            <option key={m.id} value={m.id}>
+              {m.modelName} ({m.brand?.brandName} / {m.category?.categoryName})
+            </option>
           ))}
-          <button type="button" onClick={addComponent}>+ 부품 추가</button>
-          <button type="submit" style={{ marginTop: 16 }}>등록</button>
-          {message && <div className="admin-form-message">{message}</div>}
-        </form>
+        </select>
       </div>
-    </div>
+      <div className="form-row">
+        <label>상품명<span className="required">*</span></label>
+        <input name="title" value={form.title} onChange={handleChange} required />
+      </div>
+      <div className="form-row">
+        <label>이미지 URL</label>
+        <input name="imageUrl" value={form.imageUrl} onChange={handleChange} />
+      </div>
+      <div className="form-row">
+        <label>정가<span className="required">*</span></label>
+        <input name="originalPrice" type="number" value={form.originalPrice} onChange={handleChange} required />
+      </div>
+      <div className="form-row">
+        <label>할인가</label>
+        <input name="discountPrice" type="number" value={form.discountPrice} onChange={handleChange} />
+      </div>
+      <div className="form-row">
+        <label>통화</label>
+        <input name="currency" value={form.currency} onChange={handleChange} />
+      </div>
+      <div className="form-row">
+        <label>상태</label>
+        <select name="status" value={form.status} onChange={handleChange} required>
+          <option value="신품">신품</option>
+          <option value="중고">중고</option>
+          <option value="리퍼비시">리퍼비시</option>
+        </select>
+      </div>
+      <div className="form-row">
+        <label>위치</label>
+        <input name="location" value={form.location} onChange={handleChange} />
+      </div>
+      <div className="form-row checkbox-row">
+        <label>OS 포함</label>
+        <input name="hasOs" type="checkbox" checked={form.hasOs} onChange={handleChange} />
+      </div>
+      <div className="form-row">
+        <label>OS 버전</label>
+        <input name="osVersion" value={form.osVersion} onChange={handleChange} />
+      </div>
+      <div className="form-row">
+        <label>OS 아키텍처</label>
+        <input name="osArchitecture" value={form.osArchitecture} onChange={handleChange} />
+      </div>
+      <div className="form-row">
+        <label>설명</label>
+        <textarea name="description" value={form.description} onChange={handleChange} rows={3} />
+      </div>
+      <div className="form-actions">
+        <button type="submit" className="submit-btn">상품 등록</button>
+      </div>
+      {message && <div className="form-message">{message}</div>}
+    </form>
   )
 }
 

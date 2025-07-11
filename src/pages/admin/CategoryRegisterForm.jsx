@@ -1,3 +1,5 @@
+
+// 카테고리에서 C를 담당!!
 import { useState } from 'react'
 import axios from 'axios'
 import './css/admin-form.css'

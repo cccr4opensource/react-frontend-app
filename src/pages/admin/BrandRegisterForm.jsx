@@ -3,8 +3,8 @@ import './css/admin-form.css'
 
 function BrandRegisterForm() {
   const [form, setForm] = useState({
-    category_name: '',
-    image_url: '',
+    name: '',
+    logoUrl: '',
   })
   const [message, setMessage] = useState('')
 
@@ -23,7 +23,7 @@ function BrandRegisterForm() {
       })
       if (res.ok) {
         setMessage('브랜드가 등록되었습니다!')
-        setForm({ category_name: '', image_url: '' })
+        setForm({ name: '', logoUrl: '' })
       } else {
         setMessage('등록 실패')
       }
@@ -40,8 +40,8 @@ function BrandRegisterForm() {
           <label>
             브랜드 이름
             <input
-              name="category_name"
-              value={form.category_name}
+              name="name"
+              value={form.name}
               onChange={handleChange}
               required
             />
@@ -49,8 +49,8 @@ function BrandRegisterForm() {
           <label>
             브랜드 이미지 URL
             <input
-              name="image_url"
-              value={form.image_url}
+              name="logoUrl"
+              value={form.logoUrl}
               onChange={handleChange}
             />
           </label>

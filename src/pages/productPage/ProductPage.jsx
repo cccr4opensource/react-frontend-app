@@ -1,27 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import axios from "axios"
 import './css/ProductPage.css'
-import axios from "axios";
 
 function ProductPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  
+
   const [products, setProducts] = useState([])
   const [categories, setCategories] = useState([])
   const [brands, setBrands] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchInput, setSearchInput] = useState('')
 
-  // 필터 변경 핸들러 함수 추가
-  const handleFilterChange = (key, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value
-    }))
-  }
-
-  // 필터 상태
   const [filters, setFilters] = useState({
     sortBy: 'relevance',
     category: 'all',
@@ -33,48 +24,44 @@ function ProductPage() {
     cpu: 'all'
   })
 
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }))
+  }
 
-
-  // URL에서 검색어 가져오기
   const searchTerm = searchParams.get('search') || ''
 
   useEffect(() => {
     if (searchTerm) {
-      setSearchInput(searchTerm) // 검색어를 입력창에 설정
+      setSearchInput(searchTerm)
       performSearch(searchTerm)
+    } else {
+      performSearch('')
     }
+    // eslint-disable-next-line
   }, [searchTerm])
 
-
-// ...
-
-const performSearch = async (term) => {
-  console.log('검색 실행:', term)
-  setIsLoading(true)
-
-  try {
-    const res = await axios.get(`http://localhost:8080/api/products`)
-    const data = res.data
-
-    // 카테고리, 브랜드 분리
-    const uniqueCategories = [...new Set(data.map(p => p.category))]
-    const uniqueBrands = [...new Set(data.map(p => p.brand))]
-
-    setProducts(data)
-    setCategories(uniqueCategories)
-    setBrands(uniqueBrands)
-  } catch (error) {
-    console.error('제품 불러오기 실패:', error)
+  const performSearch = async () => {
+    setIsLoading(true)
+    try {
+      const res = await axios.get(`http://localhost:8080/api/products`)
+      const data = res.data
+      const uniqueCategories = [...new Set(data.map(p => p.category))]
+      const uniqueBrands = [...new Set(data.map(p => p.brand))]
+      setProducts(data)
+      setCategories(uniqueCategories)
+      setBrands(uniqueBrands)
+    } catch (error) {
+      console.error('제품 불러오기 실패:', error)
+    }
+    setIsLoading(false)
   }
-
-  setIsLoading(false)
-}
-
 
   const handleSearch = (e) => {
     e.preventDefault()
     if (searchInput.trim()) {
-      // URL 업데이트하여 새로운 검색 실행
       navigate(`/product?search=${encodeURIComponent(searchInput.trim())}`)
     }
   }
@@ -101,18 +88,14 @@ const performSearch = async (term) => {
   }
 
   const formatPrice = (price) => {
+    if (typeof price !== 'number') return '-'
     return price.toLocaleString() + '원'
   }
 
   const filteredAndSortedProducts = products
     .filter(product => {
-      // 카테고리 필터
       if (filters.category !== 'all' && product.category !== filters.category) return false
-      
-      // 브랜드 필터
       if (filters.brand !== 'all' && product.brand !== filters.brand) return false
-      
-      // 가격대 필터
       if (filters.priceRange !== 'all') {
         const price = product.price
         switch (filters.priceRange) {
@@ -122,8 +105,6 @@ const performSearch = async (term) => {
           case 'over3m': if (price < 3000000) return false; break
         }
       }
-      
-      // 메모리 필터
       if (filters.memory !== 'all') {
         const memory = product.memory
         switch (filters.memory) {
@@ -134,8 +115,6 @@ const performSearch = async (term) => {
           case 'none': if (memory > 0) return false; break
         }
       }
-      
-      // 디스크 개수 필터
       if (filters.diskCount !== 'all') {
         const diskCount = product.disk_count
         switch (filters.diskCount) {
@@ -145,16 +124,12 @@ const performSearch = async (term) => {
           case 'over8': if (diskCount <= 8) return false; break
         }
       }
-      
-      // SSD 유무 필터
       if (filters.hasSsd !== 'all') {
         if (filters.hasSsd === 'true' && !product.has_ssd) return false
         if (filters.hasSsd === 'false' && product.has_ssd) return false
       }
-      
-      // CPU 브랜드 필터
       if (filters.cpu !== 'all') {
-        const cpu = product.cpu.toLowerCase()
+        const cpu = (product.cpu || '').toLowerCase()
         switch (filters.cpu) {
           case 'intel': if (!cpu.includes('intel')) return false; break
           case 'amd': if (!cpu.includes('amd')) return false; break
@@ -162,17 +137,16 @@ const performSearch = async (term) => {
           case 'other': if (cpu.includes('intel') || cpu.includes('amd') || cpu.includes('arm')) return false; break
         }
       }
-      
       return true
     })
     .sort((a, b) => {
       switch (filters.sortBy) {
         case 'price-low': return a.price - b.price
         case 'price-high': return b.price - a.price
-        case 'rating': return b.rating - a.rating
-        case 'discount': return b.discount - a.discount
-        case 'memory': return b.memory - a.memory
-        default: return 0 // relevance
+        case 'rating': return (b.rating || 0) - (a.rating || 0)
+        case 'discount': return (b.discount || 0) - (a.discount || 0)
+        case 'memory': return (b.memory || 0) - (a.memory || 0)
+        default: return 0
       }
     })
 
@@ -184,10 +158,7 @@ const performSearch = async (term) => {
           <button className="back-button" onClick={goToHome}>
             ← 메인으로 돌아가기
           </button>
-          
           <div className="search-info-section">
-            
-            {/* 검색 바 */}
             <div className="search-form-wrapper">
               <form className="search-form" onSubmit={handleSearch}>
                 <div className="search-input-container">
@@ -214,10 +185,7 @@ const performSearch = async (term) => {
           </div>
         ) : (
           <div className="results-container">
-
-            {/* 오른쪽 상품 목록 */}
             <div className="products-section">
-
               {/* 필터 영역 */}
               <div className="filter-dropdown-box">
                 <div className="filter-dropdown-group">
@@ -227,7 +195,6 @@ const performSearch = async (term) => {
                     {categories.map(b => <option key={b} value={b}>{b}</option>)}
                   </select>
                 </div>
-
                 <div className="filter-dropdown-group">
                   <label htmlFor="brand">브랜드</label>
                   <select id="brand" value={filters.brand} onChange={(e) => handleFilterChange('brand', e.target.value)}>
@@ -235,7 +202,6 @@ const performSearch = async (term) => {
                     {brands.map(b => <option key={b} value={b}>{b}</option>)}
                   </select>
                 </div>
-
                 <div className="filter-dropdown-group">
                   <label htmlFor="priceRange">가격대</label>
                   <select id="priceRange" value={filters.priceRange} onChange={(e) => handleFilterChange('priceRange', e.target.value)}>
@@ -246,7 +212,6 @@ const performSearch = async (term) => {
                     <option value="over3m">300만원 이상</option>
                   </select>
                 </div>
-
                 <div className="filter-dropdown-group">
                   <label htmlFor="memory">메모리</label>
                   <select id="memory" value={filters.memory} onChange={(e) => handleFilterChange('memory', e.target.value)}>
@@ -258,7 +223,6 @@ const performSearch = async (term) => {
                     <option value="over64">64GB 이상</option>
                   </select>
                 </div>
-
                 <div className="filter-dropdown-group">
                   <label htmlFor="diskCount">디스크 수</label>
                   <select id="diskCount" value={filters.diskCount} onChange={(e) => handleFilterChange('diskCount', e.target.value)}>
@@ -269,7 +233,6 @@ const performSearch = async (term) => {
                     <option value="over8">8개 이상</option>
                   </select>
                 </div>
-
                 <div className="filter-dropdown-group">
                   <label htmlFor="hasSsd">SSD</label>
                   <select id="hasSsd" value={filters.hasSsd} onChange={(e) => handleFilterChange('hasSsd', e.target.value)}>
@@ -278,7 +241,6 @@ const performSearch = async (term) => {
                     <option value="false">없음</option>
                   </select>
                 </div>
-
                 <div className="filter-dropdown-group">
                   <label htmlFor="cpu">CPU 종류</label>
                   <select id="cpu" value={filters.cpu} onChange={(e) => handleFilterChange('cpu', e.target.value)}>
@@ -290,8 +252,6 @@ const performSearch = async (term) => {
                   </select>
                 </div>
               </div>
-              
-
 
               <div className="products-grid">
                 {filteredAndSortedProducts.map(product => (
@@ -299,42 +259,37 @@ const performSearch = async (term) => {
                     {product.discount > 0 && (
                       <div className="discount-badge">-{product.discount}%</div>
                     )}
-                    
                     <div className="product-image">
-                      <img src={product.image_url} alt={product.title} />
+                      <img src={product.image_url || product.imageUrl} alt={product.title} />
                     </div>
-                    
                     <div className="product-info">
                       <div className="product-category">{product.category}</div>
                       <h3 className="product-name">{product.title}</h3>
-                      <p className="product-model">모델: {product.model}</p>
-                      <p className="product-description">{product.spec_description}</p>
-                      
+                      <p className="product-model">모델: {product.modelName || product.model}</p>
+                      <p className="product-description">{product.spec_description || product.description}</p>
                       <div className="product-specs">
                         {product.memory > 0 && <span className="spec">메모리: {product.memory}GB</span>}
                         {product.disk_count > 0 && <span className="spec">디스크: {product.disk_count}개</span>}
                         {product.has_ssd && <span className="spec ssd">SSD</span>}
                       </div>
-
                       <div className="product-details">
-                        <div className="condition-badge">{product.condition}</div>
-                        <div className="rating">
-                          ⭐ {product.rating} ({product.review_count})
-                        </div>
+                        {product.condition && <div className="condition-badge">{product.condition}</div>}
+                        {typeof product.rating === 'number' && (
+                          <div className="rating">
+                            ⭐ {product.rating} ({product.review_count})
+                          </div>
+                        )}
                       </div>
-
                       <div className="price-section">
                         {product.original_price > product.price && (
                           <span className="original-price">{formatPrice(product.original_price)}</span>
                         )}
                         <span className="current-price">{formatPrice(product.price)}</span>
                       </div>
-
                       <div className="seller-info">
                         <span className="seller">📍 {product.seller}</span>
                         <span className="location">{product.location}</span>
                       </div>
-
                       <button className="contact-button" onClick={() => navigate(`/product/${product.id}`)}>상세보기</button>
                     </div>
                   </div>

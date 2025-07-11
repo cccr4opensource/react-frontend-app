@@ -1,19 +1,12 @@
 import { useState } from 'react'
+import axios from 'axios'
 import './css/admin-form.css'
 
 function DiskRegisterForm() {
   const [form, setForm] = useState({
-    model_name: '',
-    manufacturer: '',
-    capacity_gb: '',
-    capacity_unit: '',
-    type: '',
-    interface_type: '',
-    form_factor: '',
-    rpm: '',
-    read_speed_mbps: '',
-    write_speed_mbps: '',
-    description: '',
+    modelName: '', manufacturer: '', capacity: '',
+    type: '', interfaceType: '', formFactor: '', rpm: '', readSpeedMbps: '',
+    writeSpeedMbps: '', description: ''
   })
   const [message, setMessage] = useState('')
 
@@ -25,46 +18,41 @@ function DiskRegisterForm() {
   const handleSubmit = async e => {
     e.preventDefault()
     try {
-      const res = await fetch('/api/disks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+      await axios.post('/api/disks', {
+        ...form,
+        capacity: Number(form.capacity),
+        rpm: form.rpm ? Number(form.rpm) : null,
+        readSpeedMbps: form.readSpeedMbps ? Number(form.readSpeedMbps) : null,
+        writeSpeedMbps: form.writeSpeedMbps ? Number(form.writeSpeedMbps) : null
       })
-      if (res.ok) {
-        setMessage('디스크가 등록되었습니다!')
-        setForm({
-          model_name: '', manufacturer: '', capacity_gb: '', capacity_unit: '',
-          type: '', interface_type: '', form_factor: '', rpm: '',
-          read_speed_mbps: '', write_speed_mbps: '', description: ''
-        })
-      } else {
-        setMessage('등록 실패')
-      }
+      setMessage('디스크가 등록되었습니다!')
+      setForm({
+        modelName: '', manufacturer: '', capacity: '',
+        type: '', interfaceType: '', formFactor: '', rpm: '', readSpeedMbps: '',
+        writeSpeedMbps: '', description: ''
+      })
     } catch {
-      setMessage('서버 오류')
+      setMessage('등록 실패')
     }
   }
 
   return (
-    <div className="admin-form-page">
-      <div className="admin-form-container">
-        <form className="admin-form" onSubmit={handleSubmit}>
-          <h3>디스크 등록</h3>
-          <label>모델명<input name="model_name" value={form.model_name} onChange={handleChange} required /></label>
-          <label>제조사<input name="manufacturer" value={form.manufacturer} onChange={handleChange} /></label>
-          <label>용량<input type="number" name="capacity_gb" value={form.capacity_gb} onChange={handleChange} /></label>
-          <label>용량 단위<input name="capacity_unit" value={form.capacity_unit} onChange={handleChange} placeholder="GB 또는 TB" /></label>
-          <label>타입<input name="type" value={form.type} onChange={handleChange} placeholder="HDD, SSD 등" /></label>
-          <label>인터페이스 타입<input name="interface_type" value={form.interface_type} onChange={handleChange} /></label>
-          <label>폼팩터<input name="form_factor" value={form.form_factor} onChange={handleChange} /></label>
-          <label>RPM<input type="number" name="rpm" value={form.rpm} onChange={handleChange} /></label>
-          <label>읽기 속도(MB/s)<input type="number" name="read_speed_mbps" value={form.read_speed_mbps} onChange={handleChange} /></label>
-          <label>쓰기 속도(MB/s)<input type="number" name="write_speed_mbps" value={form.write_speed_mbps} onChange={handleChange} /></label>
-          <label>상세 설명<input name="description" value={form.description} onChange={handleChange} /></label>
-          <button type="submit">등록</button>
-          {message && <div className="admin-form-message">{message}</div>}
-        </form>
-      </div>
+    <div className="parts-form-page">
+      <form className="parts-form" onSubmit={handleSubmit}>
+        <h3>디스크 등록</h3>
+        <label>모델명<input name="modelName" value={form.modelName} onChange={handleChange} required /></label>
+        <label>제조사<input name="manufacturer" value={form.manufacturer} onChange={handleChange} /></label>
+        <label>용량(GB)<input name="capacity" type="number" value={form.capacity} onChange={handleChange} required /></label>
+        <label>타입<input name="type" value={form.type} onChange={handleChange} /></label>
+        <label>인터페이스<input name="interfaceType" value={form.interfaceType} onChange={handleChange} /></label>
+        <label>폼팩터<input name="formFactor" value={form.formFactor} onChange={handleChange} /></label>
+        <label>RPM<input name="rpm" type="number" value={form.rpm} onChange={handleChange} /></label>
+        <label>읽기속도(MB/s)<input name="readSpeedMbps" type="number" value={form.readSpeedMbps} onChange={handleChange} /></label>
+        <label>쓰기속도(MB/s)<input name="writeSpeedMbps" type="number" value={form.writeSpeedMbps} onChange={handleChange} /></label>
+        <label>설명<input name="description" value={form.description} onChange={handleChange} /></label>
+        <button type="submit">등록</button>
+        {message && <div className="parts-form-message">{message}</div>}
+      </form>
     </div>
   )
 }

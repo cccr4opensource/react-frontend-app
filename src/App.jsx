@@ -4,17 +4,25 @@ import ProductPage from './pages/productPage/ProductPage'
 import ProductDetailPage from './pages/productDetailPage/ProductDetailPage'
 
 import BrandRegisterForm from './pages/admin/BrandRegisterForm'
+import BrandListPage from './pages/admin/BrandListPage'
+
 import ModelRegisterForm from './pages/admin/ModelRegisterForm'
+import ModelListPage from './pages/admin/ModelListPage'
+
 import ProductRegisterForm from './pages/admin/ProductRegisterForm'
 
 import CategoryRegisterForm from './pages/admin/CategoryRegisterForm'
 import CategoryListPage from './pages/admin/CategoryListPage'
 
+import MemoryListPage from './pages/admin/MemoryListPage'
+import MemoryRegisterForm from './pages/admin/MemoryRegisterForm'
+import DiskListPage from './pages/admin/DiskListPage'
+import DiskRegisterForm from './pages/admin/DiskRegisterForm'
+import CpuRegisterForm from './pages/admin/CpuRegisterForm'
+import CpuListPage from './pages/admin/CpuListPage'
+
 
 import './App.css'
-import CpuRegisterForm from './pages/admin/CpuRegisterForm'
-import MemoryRegisterForm from './pages/admin/MemoryRegisterForm'
-import DiskRegisterForm from './pages/admin/DiskRegisterForm'
 
 import AdminMainPage from './pages/admin/AdminMainPage'
 
@@ -40,12 +48,25 @@ function App() {
             <Route path="/admin/category/list" element={<CategoryListPage />} />
 
             <Route path="/admin/brand" element={<BrandRegisterForm />} />
+            <Route path="/admin/brand/list" element={<BrandListPage />} />
+            
+            {/* 모델, 제품, CPU, 메모리, 디스크 등록 폼 */}
             <Route path="/admin/model" element={<ModelRegisterForm />} />
+            <Route path="/admin/model/list" element={<ModelListPage />} />
+
+            {/* 제품 등록 폼 */}
             <Route path="/admin/product" element={<ProductRegisterForm />} />
 
+            {/* CPU, 메모리, 디스크 등록 폼 */}
             <Route path="/admin/cpu" element={<CpuRegisterForm />} />
+            <Route path="/admin/cpu/list" element={<CpuListPage />} />
+
             <Route path="/admin/memory" element={<MemoryRegisterForm />} />
+            <Route path="/admin/memory/list" element={<MemoryListPage />} />
+
+
             <Route path="/admin/disk" element={<DiskRegisterForm />} />
+            <Route path="/admin/disk/list" element={<DiskListPage />} />
           </Routes>
         </main>
         {/* 모든 페이지에 공통 */}
